@@ -3253,9 +3253,9 @@ class read_lerix:
         self.path          = os.path.abspath(os.path.split(exp_dir)[0] + '/')
         self.monicolumn    = monitorcolumn
         self.encolumn      = energycolumn
-        self.nixs_name, self.nixs_scans       = str.lower(nixs_name), []
-        self.wide_name, self.wide_scans       = str.lower(wide_name), []
-        self.elastic_name, self.elastic_scans = str.lower(elastic_name), []
+        self.nixs_name, self.nixs_scans       = nixs_name, []
+        self.wide_name, self.wide_scans       = wide_name, []
+        self.elastic_name, self.elastic_scans = elastic_name, []
         #split scans into NIXS and elastic and begin instance of XRStools scan class for each scan
         if not self.isValidDir(self.path):
             raise Exception('IOError! No such directory, please check directory.')

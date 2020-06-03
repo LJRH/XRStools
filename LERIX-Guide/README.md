@@ -2,13 +2,13 @@ Author: L.Higgins
 Date: 16 Jan 20
 
 -------------------------------------------------------------------------------
-Introduction
--------------------------------------------------------------------------------
+## Introduction
+
 LERIX (Low Energy Resolution Inelastic X-ray) spectrometer is the instrument in operation at [beamline 20-ID](https://www.aps.anl.gov/Spectroscopy/Beamlines/20-ID) of the Advanced Photon Source (APS). The data collected from X-ray Raman scattering spectroscopy (XRSS) experiments at the APS has a very different format (Labview prodcing ASCII text docs) to the more data-efficient ESRF "spec" format. Therefore, in order to use the feature-rich XRStools software, a small add-on (read_lerix) was made. This guide should help those who want to analyze their data using this tool. It is is development software, made by a very amateur coder in python - it will be buggy. Any help from those with more skill is welcome.
 
 -------------------------------------------------------------------------------
-Getting Started - an example
--------------------------------------------------------------------------------
+## Getting Started - an example
+
 Included in the LERIX-guide directory is some test data of a graphite pellet on a spinner from 20-ID. The experiment was performed using the Si(311) mono at 9890 eV with XRS data collected for the C K edge.
 
 ### Loading relevant modules
@@ -90,8 +90,7 @@ graphite.join_nixs_wide(scaling='auto')
 
 
 -------------------------------------------------------------------------------
-Dictionary of 'read_lerix' functions
--------------------------------------------------------------------------------
+# Dictionary of 'read_lerix' functions
 ## read_lerix()
 
 Variable      | Type   |  Description

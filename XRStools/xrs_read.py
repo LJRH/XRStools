@@ -45,8 +45,7 @@ from . import xrs_rois, xrs_scans, xrs_utilities, math_functions, xrs_fileIO, ro
 import h5py
 import scipy.io
 import traceback
-import sys
-import os, re
+import sys, os, re
 import numpy as np
 import array as arr
 import pickle
@@ -73,6 +72,7 @@ __metaclass__ = type # new style classes
 # These values are used in read_Lerix class but may be useful elsewhere? LJRH
 TINY = 1.e-7
 MAX_FILESIZE = 100*1024*1024  # 100 Mb limit
+MIN_FILESIZE = 1024 # 1 kB minimum to avoid empty files
 COMMENTCHARS = '#;%*!$'
 NAME_MATCH = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$").match
 VALID_SNAME_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
@@ -3250,7 +3250,7 @@ def get_scans_pw(id20read_object,scannumbers):
 class read_lerix:
     def __init__(self,exp_dir,elastic_name='elastic',nixs_name='nixs',wide_name='wide',energycolumn=25,monitorcolumn=4,ancolumns=range(6,25)):
         self.scans         = {} # was a dictionary before
-        self.path          = os.path.abspath(os.path.split(exp_dir)[0] + '/')
+        self.path          = os.path.abspath(os.path.split(exp_dir)[0])
         self.monicolumn    = monitorcolumn
         self.encolumn      = energycolumn
         self.ancolumns     = ancolumns
@@ -3259,8 +3259,8 @@ class read_lerix:
         self.elastic_name, self.elastic_scans = elastic_name, []
         #split scans into NIXS and elastic and begin instance of XRStools scan class for each scan
         if not self.isValidDir(self.path):
-            raise Exception('IOError! No such directory, please check directory.')
-        for file in self.sort_dir(self.path):
+            sys.exit(0)
+        for file in self.sort_dir():
                 scan_info = self.scan_info(file)
                 if scan_info[2]=='elastic':
                     self.elastic_scans.append(file)
@@ -3490,30 +3490,19 @@ class read_lerix:
         scan_name = scan_type + '%04d' %scan_number
         return(scan_number, scan_name, scan_type, f)
 
-    def sort_dir(self, dir):
+    def sort_dir(self, path=None):
         """Returns a list of directory contents after filtering out scans without
         the correct format or size e.g. 'elastic.0001, nixs.0001 '"""
-        dir_scans = []
-        for file in os.listdir(dir):
-            file_lc = str.lower(file)
-            fn,fext = os.path.splitext(file_lc)
-            if not file_lc.startswith('.'):
-                    if fext.lstrip('.').isdigit():
-                        if not os.stat(dir + '/' + file).st_size > 7000:
-                            print("{} {}".format(">> >> Warning!! skipped empty scan (<7KB): ", file))
-                            continue
-                        elif not os.stat(dir + '/' + file).st_size < MAX_FILESIZE:
-                            print("{} {}".format(">> >> Warning!! skipped huge scan (>100MB): ", file))
-                            continue
-                        else:
-                            if fn==self.nixs_name:
-                                dir_scans.append(file)
-                            elif fn==self.elastic_name:
-                                dir_scans.append(file)
-                            elif fn==self.wide_name:
-                                dir_scans.append(file)
-        sorted_dir = sorted(dir_scans, key=lambda x: os.path.splitext(x)[1])
-        return sorted_dir
+        if not path: # allows sort_dir() to be called without a path.
+            path = self.path
+        # regular expression search for *.[0-9][0-9][0-9][0-9] in path if is a file (therfore not dir)
+        res = [f for f in os.listdir(path) if (re.search(r".[0-9]{4}",f)) and (os.path.isfile(os.path.join(path,file)))]
+        for scan in res:
+            if not (MIN_FILESIZE>os.stat(os.path.join(path,file)).st_size<MAX_FILESIZE):
+                print(file, 'is outside of the accepted file limits 1KB -> 100 MB. Skipping.')
+                res.remove(file)
+        sorted_dir = sorted([file for file in res if os.path.splitext(file)[0] in [graphite.elastic_name,graphite.nixs_name,graphite.wide_name]]) #case sensitive
+        return(sorted_dir)
 
     def isValidDir(self,dir):
         """Show that the scan directory is valid, that the directory holds a scan
@@ -3522,13 +3511,13 @@ class read_lerix:
         if not os.path.isdir(dir):
             print('Check the directory you have supplied')
             return False
-        elif not os.path.isfile(dir+'/'+self.elastic_name+'.0001'):
-            print("The directory you supplied does not have a elastic.0001 file!!! \n If your elastic scan has a different name, please specify as: 'elastic_name'")
+        elif not os.path.isfile(os.path.join(dir, self.elastic_name+'.0001')):
+            print("The directory you supplied does not have a elastic.0001 file!!! \n If your elastic scan has a different name (*case sensitive), please specify as: 'elastic_name'")
             return False
-        elif not os.path.isfile(dir+'/'+self.nixs_name+'.0001'):
-            print("The directory you supplied does not have a NIXS.0001 file!!! \n If your raman scan has a different name, please specify as: 'NIXS_name'")
+        elif not os.path.isfile(os.path.join(dir, self.nixs_name+'.0001')):
+            print("The directory you supplied does not have a NIXS.0001 file!!! \n If your raman scan has a different name (*case sensitive), please specify as: 'NIXS_name'")
             return False
-        elif not os.path.isfile(dir+'/'+self.wide_name+'.0001'):
+        elif not os.path.isfile(os.path.join(dir, self.wide_name+'.0001')):
             print("No wide scans found. Continuing...")
             return True
         else:
@@ -3672,14 +3661,12 @@ class read_lerix:
         X-ray scattering experiment. With data in the form of elastic.0001, allign.0001
         and NIXS.0001. Function reteurns the averaged energy loss, signals, errors, E0
         and 2theta angles for the scans in the chosen directory."""
-        scann = []
         if exp_dir is None:
             exp_dir = self.path
         if scans is 'all':
             chosen_scans = self.elastic_scans
         elif isinstance(scans,list):
-            scann[:] = [x - 1 for x in scans] #scan 1 will be the 0th item in the list
-            chosen_scans = [self.nixs_scans[i] for i in scann]
+            chosen_scans = [self.elastic_scans[i] for i in scans]
         else:
             print("scans must be list of scan numbers (e.g. [1,2,3]) or all")
         for file in chosen_scans:
@@ -3690,14 +3677,12 @@ class read_lerix:
 
     def load_nixs(self,exp_dir=None,scans='all',analyzers='all'):
         """Blah Blah"""
-        scann = []
         if exp_dir is None:
             exp_dir = self.path
         if scans is 'all':
             chosen_scans = self.nixs_scans
         elif isinstance(scans,list):
-            scann[:] = [x - 1 for x in scans] #scan 1 will be the 0th item in the list
-            chosen_scans = [self.nixs_scans[i] for i in scann]
+            chosen_scans = [self.nixs_scans[i] for i in scans]
         else:
             print("scans must be list of scan numbers (e.g. [1,2,3]) or all")
         for file in chosen_scans:
@@ -3712,14 +3697,17 @@ class read_lerix:
 
     def load_wides(self,exp_dir=None,scans='all',analyzers='all',join=False):
         """Blah Blah"""
-        scann = []
         if exp_dir is None:
             exp_dir = self.path
         if scans is 'all':
             chosen_scans = self.wide_scans
         elif isinstance(scans,list):
+<<<<<<< HEAD
             scann[:] = [x - 1 for x in scans] #scan 1 will be the 0th item in the list
             chosen_scans = [self.wide_scans[i] for i in scann]
+=======
+            chosen_scans = [self.wide_scans[i] for i in scans]
+>>>>>>> LERIX-working
         else:
             print("scans must be list of scan numbers (e.g. [1,2,3]) or all")
         for file in chosen_scans:
