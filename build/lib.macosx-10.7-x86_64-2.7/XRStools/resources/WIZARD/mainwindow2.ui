@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>845</width>
+    <height>615</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>XRS_WIZARD</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="viewsTab">
+      <property name="acceptDrops">
+       <bool>true</bool>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="globalTab">
+       <attribute name="title">
+        <string>Creation</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="create_new_calculation">
+              <property name="text">
+               <string>Create New Calculation</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_6">
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>845</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFIle">
+    <property name="title">
+     <string>FIle</string>
+    </property>
+    <addaction name="action_save_parameters"/>
+    <addaction name="action_load_start_parameters"/>
+    <addaction name="action_load_parameters"/>
+    <addaction name="action_load_parametersGuided"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuFIle"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="separator"/>
+  </widget>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Load...</string>
+   </property>
+  </action>
+  <action name="actionSelectScanFiles">
+   <property name="text">
+    <string>Select Scan and files...</string>
+   </property>
+  </action>
+  <action name="actionSpot_detection">
+   <property name="text">
+    <string>subimage spot detection</string>
+   </property>
+  </action>
+  <action name="actionRegistration">
+   <property name="text">
+    <string>registration</string>
+   </property>
+  </action>
+  <action name="actionGlobalSpotDetection">
+   <property name="text">
+    <string>global spot detection</string>
+   </property>
+  </action>
+  <action name="actionShowDatas">
+   <property name="text">
+    <string>showDatas</string>
+   </property>
+  </action>
+  <action name="actionShowMasks">
+   <property name="text">
+    <string>showMasks</string>
+   </property>
+  </action>
+  <action name="actionPush_mask_remotely">
+   <property name="text">
+    <string>push mask remotely</string>
+   </property>
+  </action>
+  <action name="actionWrite_on_file">
+   <property name="text">
+    <string>write  mask on file</string>
+   </property>
+  </action>
+  <action name="actionLoad_mask_from_file">
+   <property name="text">
+    <string>load mask from file</string>
+   </property>
+  </action>
+  <action name="actionRemote_load">
+   <property name="text">
+    <string>remote load</string>
+   </property>
+  </action>
+  <action name="actionWrite_mask_oin_file">
+   <property name="text">
+    <string>write mask oin file</string>
+   </property>
+  </action>
+  <action name="actionWrite_mask_on_file">
+   <property name="text">
+    <string>write mask on file</string>
+   </property>
+  </action>
+  <action name="actionWrite_masksDict_on_file">
+   <property name="text">
+    <string>write masksDict on file</string>
+   </property>
+  </action>
+  <action name="actionLoad_masksDict_from_file">
+   <property name="text">
+    <string>load masksDict from file</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="action_save_parameters">
+   <property name="text">
+    <string>Save Parameters</string>
+   </property>
+  </action>
+  <action name="actionLoad_image_from_hdf5_file">
+   <property name="text">
+    <string>load image from hdf5 file</string>
+   </property>
+  </action>
+  <action name="action_load_start_parameters">
+   <property name="text">
+    <string>Load Start Parameters</string>
+   </property>
+  </action>
+  <action name="actionLoad_maskDict_from_hdf5">
+   <property name="text">
+    <string>load maskDict from hdf5</string>
+   </property>
+  </action>
+  <action name="action_load_parameters">
+   <property name="text">
+    <string>Load Parameters</string>
+   </property>
+  </action>
+  <action name="action_load_parametersGuided">
+   <property name="text">
+    <string>Load Parameters GUIDED</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
