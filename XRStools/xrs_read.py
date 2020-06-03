@@ -3749,7 +3749,7 @@ class read_lerix:
         if not np.all(wide_eloss[1:] >= wide_eloss[:-1], axis=0) and np.all(self.eloss[1:] >= self.eloss[:-1], axis=0):
             print("Eloss in the wide and nixs scan/s must be strictly increasing! stopping.")
             return(0)
-        idx = (wide_eloss>min(wide_eloss, key=lambda x:abs(x-min(self.eloss))))*(wide_eloss<=min(wide_eloss, key=lambda x:abs(x-max(self.eloss)))) # idx is boolean with len=wide_eloss, True when in the range of nixs_eloss
+        idx = (wide_eloss>=min(wide_eloss, key=lambda x:abs(x-min(self.eloss))))*(wide_eloss<=min(wide_eloss, key=lambda x:abs(x-max(self.eloss)))) # idx is boolean with len=wide_eloss, True when in the range of nixs_eloss
         # (A) Generate the common eloss scale.
         wide_eloss = np.delete(wide_eloss,np.where(idx)[0],axis=0)  # deletes wide_eloss values where False.
         try:
@@ -3757,13 +3757,14 @@ class read_lerix:
         except:
             self.eloss = np.append(wide_eloss,self.eloss,axis=0)
         # (B) Generate the combined signals with scaling options auto, none, float
+        wide_signals_crossover = wide_signals[np.where(idx)[0][0]] # take wide_signal value at crossover point
         wide_signals = np.delete(wide_signals,np.where(idx)[0],axis=0)
         if scaling == 'auto':
-            scaling = np.average(np.divide(wide_signals[np.where(idx)[0][0]],self.signals[0]))
+            scaling = np.divide(wide_signals_crossover,self.signals[0])
             try:
-                self.signals = np.insert(wide_signals,np.where(idx)[0][0],scaling*self.signals,axis=0)
+                self.signals = np.insert(np.divide(wide_signals,scaling),np.where(idx)[0][0],self.signals,axis=0)
             except: # if wide scan doesn't go past the nixs scan, just append nixs onto end of wide.
-                self.signals = np.append(wide_signals,scaling*self.signals,axis=0)
+                self.signals = np.append(np.divide(wide_signals,scaling),self.signals,axis=0)
         elif isinstance(scaling,float):
             scaling = float(scaling)
             try:
