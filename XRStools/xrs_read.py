@@ -3702,12 +3702,7 @@ class read_lerix:
         if scans is 'all':
             chosen_scans = self.wide_scans
         elif isinstance(scans,list):
-<<<<<<< HEAD
-            scann[:] = [x - 1 for x in scans] #scan 1 will be the 0th item in the list
-            chosen_scans = [self.wide_scans[i] for i in scann]
-=======
             chosen_scans = [self.wide_scans[i] for i in scans]
->>>>>>> LERIX-working
         else:
             print("scans must be list of scan numbers (e.g. [1,2,3]) or all")
         for file in chosen_scans:
@@ -3749,15 +3744,19 @@ class read_lerix:
         if not np.all(wide_eloss[1:] >= wide_eloss[:-1], axis=0) and np.all(self.eloss[1:] >= self.eloss[:-1], axis=0):
             print("Eloss in the wide and nixs scan/s must be strictly increasing! stopping.")
             return(0)
+        # idx is an boolean mask of the wide_eloss, True where NIXS and wide energy values overlap.
         idx = (wide_eloss>=min(wide_eloss, key=lambda x:abs(x-min(self.eloss))))*(wide_eloss<=min(wide_eloss, key=lambda x:abs(x-max(self.eloss)))) # idx is boolean with len=wide_eloss, True when in the range of nixs_eloss
+        nixs_wide_overlap_region = np.where(idx)[0]
         # (A) Generate the common eloss scale.
-        wide_eloss = np.delete(wide_eloss,np.where(idx)[0],axis=0)  # deletes wide_eloss values where False.
+        # deletes wide_eloss values where NIXS and wide overlap then inserts nixs_eloss into the wide_eloss energy gap
         try:
-            self.eloss = np.insert(wide_eloss,np.where(idx)[0][0],self.eloss,axis=0)  # inserts nixs_eloss at the 0th value of idx
+            self.eloss = np.insert(np.delete(wide_eloss,nixs_wide_overlap_region,axis=0),nixs_wide_overlap_region[0],self.eloss,axis=0)
         except:
-            self.eloss = np.append(wide_eloss,self.eloss,axis=0)
+            self.eloss = np.append(np.delete(wide_eloss,nixs_wide_overlap_region,axis=0),self.eloss,axis=0)
         # (B) Generate the combined signals with scaling options auto, none, float
-        wide_signals_crossover = wide_signals[np.where(idx)[0][0]] # take wide_signal value at crossover point
+        # Last wide signal value before the NIXS/wide overlap region.
+        wide_signals_crossover = wide_signals[np.where(idx)[0][0]]
+        # Remove wide signals
         wide_signals = np.delete(wide_signals,np.where(idx)[0],axis=0)
         if scaling == 'auto':
             scaling = np.divide(wide_signals_crossover,self.signals[0])
